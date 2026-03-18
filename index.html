@@ -37,8 +37,8 @@ body {
   font-family: var(--body);
   background: var(--bg);
   color: var(--text);
-  font-size: 17px;
-  line-height: 1.75;
+  font-size: 19px;
+  line-height: 1.8;
   overflow-x: hidden;
   cursor: crosshair;
 }
@@ -88,14 +88,14 @@ nav {
   border-bottom: 1px solid var(--bord);
 }
 .nav-logo {
-  font-family: var(--head); font-size: .82rem; font-weight: 900;
+  font-family: var(--head); font-size: 1rem; font-weight: 900;
   color: var(--cyan); text-decoration: none; letter-spacing: .28em;
   text-shadow: 0 0 22px var(--cglow);
 }
-.nav-logo span { color: var(--tdim); font-size: .6rem; margin: 0 .3rem; }
+.nav-logo span { color: var(--tdim); font-size: .75rem; margin: 0 .3rem; }
 nav ul { display: flex; gap: 2.5rem; list-style: none; }
 nav a {
-  font-family: var(--mono); font-size: .62rem;
+  font-family: var(--mono); font-size: .78rem;
   color: var(--tdim); text-decoration: none;
   letter-spacing: .18em; text-transform: uppercase;
   transition: color .2s; position: relative;
@@ -107,9 +107,9 @@ nav a::after {
 nav a:hover { color: var(--cyan); }
 nav a:hover::after { right: 0; }
 .nav-cta {
-  font-family: var(--mono); font-size: .6rem; letter-spacing: .2em;
+  font-family: var(--mono); font-size: .75rem; letter-spacing: .2em;
   text-transform: uppercase; text-decoration: none;
-  padding: .55rem 1.4rem;
+  padding: .6rem 1.5rem;
   background: var(--cyan); color: var(--bg); font-weight: 700;
   box-shadow: 0 0 22px var(--cglow);
   transition: all .25s; cursor: crosshair;
@@ -486,6 +486,94 @@ footer {
 .reveal { opacity:0; transform:translateY(20px); transition: opacity .75s ease, transform .75s ease; }
 .reveal.on { opacity:1; transform:translateY(0); }
 
+/* ── PROTOCOL OVERLAY ── */
+#protocolOverlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #010105;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3rem 2rem;
+  overflow: hidden;
+}
+#protocolOverlay.active { display: flex; }
+#protocolOverlay::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.12) 2px, rgba(0,0,0,.12) 3px);
+  pointer-events: none; z-index: 1;
+}
+.proto-close {
+  position: absolute; top: 2rem; right: 2.5rem;
+  font-family: var(--mono); font-size: .48rem;
+  color: #1a1a30; letter-spacing: .3em;
+  cursor: pointer; z-index: 10;
+  transition: color .4s; border: none; background: none;
+  text-transform: uppercase;
+}
+.proto-close:hover { color: var(--tdim); }
+.proto-inner {
+  max-width: 700px; width: 100%;
+  display: flex; flex-direction: column; gap: 0;
+  position: relative; z-index: 2;
+}
+.proto-status {
+  font-family: var(--mono); font-size: .58rem;
+  color: var(--grn); letter-spacing: .4em;
+  margin-bottom: 2rem; opacity: .7;
+}
+.proto-status::before { content: '> '; }
+.proto-status::after { content: '_'; animation: blink 1s step-end infinite; }
+.proto-progress-wrap {
+  background: #0a0a15; border: 1px solid #0d0d20;
+  padding: .8rem 1rem; margin-bottom: 2.5rem;
+}
+.proto-progress-label {
+  font-family: var(--mono); font-size: .5rem;
+  color: var(--tdim); letter-spacing: .25em; margin-bottom: .5rem;
+}
+.proto-bar-track { height: 2px; background: #0d0d20; }
+.proto-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purp), var(--cyan));
+  box-shadow: 0 0 8px var(--cglow);
+  transition: width .4s ease;
+}
+.proto-bar-val {
+  font-family: var(--mono); font-size: .52rem;
+  color: var(--tdim); margin-top: .4rem; letter-spacing: .18em;
+}
+.proto-log {
+  display: flex; flex-direction: column; gap: .5rem;
+  min-height: 320px;
+}
+.proto-line {
+  font-family: var(--mono); font-size: .95rem;
+  letter-spacing: .08em; line-height: 1.9;
+  opacity: 0; transform: translateY(4px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.proto-line.show { opacity: 1; transform: translateY(0); }
+.proto-line.dim   { color: var(--tdim); }
+.proto-line.cyan  { color: var(--cyan); }
+.proto-line.purp  { color: #9944ff; }
+.proto-line.red   { color: var(--gr); }
+.proto-line.white { color: rgba(255,255,255,.85); }
+.proto-line.muted { color: #2a3060; font-size: .78rem; }
+.proto-coords {
+  position: absolute; bottom: -2rem; right: 0;
+  font-family: var(--mono); font-size: .48rem;
+  color: var(--tmute); letter-spacing: .18em; text-align: right;
+}
+@keyframes staticFlash {
+  0%,100% { opacity: 0 }
+  50% { opacity: .04 }
+}
+.proto-static {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: staticFlash .15s steps(1) infinite;
+}
+
 /* ── RESPONSIVE ── */
 @media(max-width:820px) {
   nav { padding: 1rem 1.5rem; }
@@ -501,6 +589,22 @@ footer {
 
 <canvas id="hexrain"></canvas>
 <canvas id="particles"></canvas>
+
+<!-- PROTOCOL OVERLAY -->
+<div id="protocolOverlay">
+  <div class="proto-static"></div>
+  <button class="proto-close" id="protoClose">esc // exit</button>
+  <div class="proto-inner">
+    <div class="proto-status" id="protoStatus">INITIALIZING ENTROPY CASCADE</div>
+    <div class="proto-progress-wrap">
+      <div class="proto-progress-label">// PROTOCOL LOAD SEQUENCE</div>
+      <div class="proto-bar-track"><div class="proto-bar-fill" id="protoBar" style="width:0%"></div></div>
+      <div class="proto-bar-val" id="protoBarVal">0.0%</div>
+    </div>
+    <div class="proto-log" id="protoLog"></div>
+    <div class="proto-coords" id="protoCoords"></div>
+  </div>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -536,11 +640,6 @@ footer {
     We are not a token. We are a thermodynamic event.
   </p>
 
-  <div class="btns">
-    <a href="#entropy" class="btn btn-p">Enter the Protocol</a>
-    <a href="#token" class="btn btn-s">Get $HXTP</a>
-  </div>
-
   <div class="scroll-ind">
     <span>SCROLL</span>
     <div class="scroll-line"></div>
@@ -566,6 +665,9 @@ footer {
           ΔS<sub>universe</sub> ≥ 0<br>
           S = k<sub>B</sub> · ln Ω<br>
           <small>// BOLTZMANN'S ENTROPY LAW — THE UNIVERSE'S PRIME DIRECTIVE</small>
+        </div>
+        <div style="margin-top:2rem">
+          <a href="#" class="btn btn-p" id="enterProtocolBtn">Enter the Protocol</a>
         </div>
       </div>
       <div class="reveal" style="transition-delay:.15s">
@@ -743,8 +845,8 @@ footer {
     <div class="line" style="margin: 1.4rem auto 0"></div>
     <p>Every node added to the network increases the entropy of the old order. Follow the protocol. Acquire the token. Become part of a thermodynamic event that cannot be reversed. ΔS≥0 — always.</p>
     <div class="btns" style="margin-bottom:0">
-      <a href="https://x.com/HEXTROPY" target="_blank" class="btn btn-p">Follow @HEXTROPY</a>
-      <a href="#token" class="btn btn-s">Get $HXTP</a>
+      <a href="#token" class="btn btn-p">Get $HXTP</a>
+      <a href="#token" class="btn btn-s">do NOT get $HXTP</a>
     </div>
     <div class="join-hex">
       48 45 58 54 52 4f 50 59 &nbsp;//&nbsp; 24 48 58 54 50 &nbsp;//&nbsp; ΔS≥0 &nbsp;//&nbsp; 53 4f 4c 41 4e 41
@@ -756,7 +858,7 @@ footer {
 <footer>
   <div class="footer-logo">HEXTROPY // ΔS≥0</div>
   <div class="footer-copy">© 2025 HEXTROPY PROTOCOL · QUANTUM ENTROPY · SOLANA NETWORK</div>
-  <a href="https://x.com/HEXTROPY" target="_blank" class="footer-link">@HEXTROPY ↗</a>
+  <span class="footer-link">$HXTP // SOLANA</span>
 </footer>
 
 <script>
@@ -872,6 +974,134 @@ const meterObs = new IntersectionObserver(entries=>{
 },{threshold:.3});
 const meter=document.getElementById('entropyMeter');
 if(meter) meterObs.observe(meter);
+
+/* ── PROTOCOL OVERLAY LOGIC ── */
+(function(){
+  const overlay = document.getElementById('protocolOverlay');
+  const closeBtn = document.getElementById('protoClose');
+  const log = document.getElementById('protoLog');
+  const bar = document.getElementById('protoBar');
+  const barVal = document.getElementById('protoBarVal');
+  const status = document.getElementById('protoStatus');
+  const coords = document.getElementById('protoCoords');
+
+  const lines = [
+    { t: 'dim',   text: '> loading quantum state matrix...' },
+    { t: 'cyan',  text: 'ENTROPY VECTOR DETECTED — source unknown' },
+    { t: 'dim',   text: '> cross-referencing probability fields...' },
+    { t: 'white', text: 'something is about to happen.' },
+    { t: 'muted', text: '(this has not yet been confirmed)' },
+    { t: 'purp',  text: 'PHASE_02 // collapsing superposition of intent' },
+    { t: 'dim',   text: '> the decision exists in all states simultaneously' },
+    { t: 'red',   text: 'WARNING: outcome not yet instantiated' },
+    { t: 'white', text: 'we were going to tell you—' },
+    { t: 'muted', text: '...' },
+    { t: 'cyan',  text: 'ΔS = [REDACTED]' },
+    { t: 'dim',   text: '> recalculating. this may take' },
+    { t: 'muted', text: '(time is not a reliable variable here)' },
+    { t: 'purp',  text: 'AXIOM_NULL // that which has not been decided cannot be loaded' },
+    { t: 'dim',   text: '> scanning for a conclusion...' },
+    { t: 'red',   text: 'ERROR: conclusion not found in probability space' },
+    { t: 'white', text: 'the protocol is real.' },
+    { t: 'white', text: 'the protocol is not yet real.' },
+    { t: 'muted', text: '(both statements are currently true)' },
+    { t: 'cyan',  text: 'OBSERVER REQUIRED TO COLLAPSE THIS PAGE' },
+    { t: 'dim',   text: '> awaiting observation...' },
+    { t: 'muted', text: '...' },
+    { t: 'muted', text: '...' },
+    { t: 'purp',  text: 'SIGNAL_FRAGMENT: something irreversible is' },
+    { t: 'muted', text: '[transmission interrupted]' },
+  ];
+
+  const statuses = [
+    'INITIALIZING ENTROPY CASCADE',
+    'LOADING QUANTUM STATE MATRIX',
+    'AWAITING OBSERVER',
+    'COLLAPSING SUPERPOSITION',
+    'SIGNAL FRAGMENTING',
+    'OUTCOME PENDING',
+    'PROTOCOL UNDECIDED',
+  ];
+
+  let barTarget = 0, barCurrent = 0, lineIdx = 0, running = false;
+  let barInterval, lineTimeout, coordInterval, statusTimeout;
+
+  function randHex(len){ return Array.from({length:len},()=>'0123456789ABCDEF'[Math.floor(Math.random()*16)]).join(''); }
+  function randFloat(){ return (Math.random()*99).toFixed(6); }
+
+  function updateCoords(){
+    coords.textContent = randHex(4)+':'+randHex(4)+'  //  λ='+randFloat()+'  //  Ω='+randHex(8);
+  }
+
+  function oscillateBar(){
+    const delta = (Math.random()-.3) * 4;
+    barTarget = Math.max(2, Math.min(97, barTarget + delta));
+  }
+
+  function animateBar(){
+    barCurrent += (barTarget - barCurrent) * .06;
+    bar.style.width = barCurrent.toFixed(2)+'%';
+    barVal.textContent = barCurrent.toFixed(1)+'%  //  '+(barCurrent<30?'warming up':barCurrent<60?'processing':barCurrent<85?'almost there':'never quite there');
+    if(running) requestAnimationFrame(animateBar);
+  }
+
+  function nextLine(){
+    if(!running) return;
+    if(lineIdx >= lines.length){
+      lineIdx = 0;
+      log.innerHTML = '';
+    }
+    const l = lines[lineIdx++];
+    const el = document.createElement('div');
+    el.className = 'proto-line '+l.t;
+    el.textContent = l.text;
+    log.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    if(log.children.length > 9){
+      log.children[0].style.opacity = '0';
+      setTimeout(()=>{ if(log.children[0]) log.removeChild(log.children[0]); }, 500);
+    }
+    const delay = 800 + Math.random()*2200;
+    lineTimeout = setTimeout(nextLine, delay);
+  }
+
+  function cycleStatus(){
+    status.textContent = statuses[Math.floor(Math.random()*statuses.length)];
+    statusTimeout = setTimeout(cycleStatus, 2500 + Math.random()*3000);
+  }
+
+  function open(){
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    running = true;
+    barTarget = 12;
+    barCurrent = 0;
+    log.innerHTML = '';
+    lineIdx = 0;
+    animateBar();
+    nextLine();
+    cycleStatus();
+    barInterval = setInterval(oscillateBar, 1200);
+    coordInterval = setInterval(updateCoords, 600);
+    updateCoords();
+  }
+
+  function close(){
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    running = false;
+    clearInterval(barInterval);
+    clearInterval(coordInterval);
+    clearTimeout(lineTimeout);
+    clearTimeout(statusTimeout);
+  }
+
+  document.getElementById('enterProtocolBtn').addEventListener('click', e => {
+    e.preventDefault(); open();
+  });
+  closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
+})();
 
 /* ── GLITCH SCRAMBLE ON HOVER ── */
 const h1=document.querySelector('h1.glitch');
