@@ -1,552 +1,896 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOLs Killer - The Revolution Begins</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HEXTROPY — ΔS≥0 // Quantum Entropy Protocol on Solana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #030308;
+  --bg2:   #05050e;
+  --surf:  #0a0a1c;
+  --surf2: #0f0f28;
+  --cyan:  #00e5ff;
+  --cyan2: #00b8d4;
+  --cdim:  rgba(0,229,255,.07);
+  --cglow: rgba(0,229,255,.2);
+  --purp:  #7700ff;
+  --pdim:  rgba(119,0,255,.1);
+  --grn:   #00ff41;
+  --gr:    #ff0033;
+  --amb:   #ffaa00;
+  --text:  #a8c0e8;
+  --tdim:  #3a4a7a;
+  --tmute: #141e3a;
+  --bord:  #0d0d28;
+  --bordc: rgba(0,229,255,.13);
+  --mono: 'Share Tech Mono', monospace;
+  --head: 'Orbitron', sans-serif;
+  --body: 'Space Grotesk', sans-serif;
+}
 
-        body {
-            font-family: 'Courier Prime', monospace;
-            background: #0a0a0a;
-            color: #00ff00;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.75;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
 
-        /* Matrix-style background effect */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(90deg, transparent 98%, #00ff0020 100%),
-                linear-gradient(180deg, transparent 98%, #00ff0020 100%);
-            background-size: 20px 20px;
-            z-index: -2;
-        }
+/* ── SCANLINES ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,.07) 2px, rgba(0,0,0,.07) 3px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
 
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, transparent 0%, #000000 70%);
-            z-index: -1;
-        }
+/* ── NOISE ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .022;
+  pointer-events: none;
+  z-index: 9997;
+  animation: noiseShift .4s steps(2) infinite;
+}
+@keyframes noiseShift {
+  0%,100% { transform: translate(0,0) }
+  25%     { transform: translate(-2px, 1px) }
+  50%     { transform: translate(1px,-2px) }
+  75%     { transform: translate(-1px,-1px) }
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+/* ── CANVASES ── */
+canvas#hexrain    { position:fixed; inset:0; opacity:.04; pointer-events:none; z-index:0; }
+canvas#particles  { position:fixed; inset:0; opacity:.3;  pointer-events:none; z-index:0; }
 
-        header {
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 2px solid #00ff00;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        }
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 4rem;
+  background: rgba(3,3,8,.92);
+  backdrop-filter: blur(20px) saturate(200%);
+  border-bottom: 1px solid var(--bord);
+}
+.nav-logo {
+  font-family: var(--head); font-size: .82rem; font-weight: 900;
+  color: var(--cyan); text-decoration: none; letter-spacing: .28em;
+  text-shadow: 0 0 22px var(--cglow);
+}
+.nav-logo span { color: var(--tdim); font-size: .6rem; margin: 0 .3rem; }
+nav ul { display: flex; gap: 2.5rem; list-style: none; }
+nav a {
+  font-family: var(--mono); font-size: .62rem;
+  color: var(--tdim); text-decoration: none;
+  letter-spacing: .18em; text-transform: uppercase;
+  transition: color .2s; position: relative;
+}
+nav a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0; right: 100%;
+  height: 1px; background: var(--cyan); transition: right .3s ease;
+}
+nav a:hover { color: var(--cyan); }
+nav a:hover::after { right: 0; }
+.nav-cta {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .2em;
+  text-transform: uppercase; text-decoration: none;
+  padding: .55rem 1.4rem;
+  background: var(--cyan); color: var(--bg); font-weight: 700;
+  box-shadow: 0 0 22px var(--cglow);
+  transition: all .25s; cursor: crosshair;
+}
+.nav-cta:hover { background: transparent; color: var(--cyan); }
 
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 9rem 2rem 6rem;
+  position: relative; overflow: hidden; z-index: 1;
+}
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,.016) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,.016) 1px, transparent 1px);
+  background-size: 66px 66px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 5%, transparent 100%);
+}
+.hero-pulse {
+  position: absolute;
+  width: 900px; height: 900px;
+  background: radial-gradient(circle,
+    rgba(119,0,255,.06) 0%,
+    rgba(0,229,255,.04) 40%,
+    transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  animation: pulsate 5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes pulsate {
+  0%,100% { opacity:.6; transform: translate(-50%,-50%) scale(1); }
+  50%      { opacity:1;  transform: translate(-50%,-50%) scale(1.07); }
+}
 
-        .logo {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: #00ff00;
-            text-decoration: none;
-            text-shadow: 0 0 10px #00ff00;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
+.hero-eyebrow {
+  font-family: var(--mono); font-size: .6rem;
+  color: var(--grn); letter-spacing: .44em; text-transform: uppercase;
+  margin-bottom: 2.2rem;
+  opacity: 0; animation: fadeUp .8s ease forwards .1s;
+}
+.hero-eyebrow::before { content: '> '; color: var(--tdim); }
+.hero-eyebrow::after  { content: '_'; animation: blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00; }
-            to { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00; }
-        }
+/* ── GLITCH TITLE ── */
+.glitch-wrap {
+  position: relative;
+  opacity: 0; animation: fadeUp .9s ease forwards .3s;
+}
+h1.glitch {
+  font-family: var(--head);
+  font-size: clamp(4rem, 12vw, 10rem);
+  font-weight: 900; line-height: .9;
+  color: #fff; letter-spacing: .04em;
+  position: relative;
+}
+h1.glitch::before,
+h1.glitch::after {
+  content: attr(data-text);
+  position: absolute; top: 0; left: 0; right: 0;
+  font-family: var(--head);
+  font-size: clamp(4rem, 12vw, 10rem);
+  font-weight: 900; line-height: .9; letter-spacing: .04em;
+}
+h1.glitch::before {
+  color: var(--gr); opacity: .7;
+  clip-path: polygon(0 18%, 100% 18%, 100% 38%, 0 38%);
+  animation: glitchA 5s ease-in-out infinite;
+}
+h1.glitch::after {
+  color: var(--cyan); opacity: .6;
+  clip-path: polygon(0 62%, 100% 62%, 100% 78%, 0 78%);
+  animation: glitchB 5s ease-in-out infinite 2.5s;
+}
+@keyframes glitchA {
+  0%,88%,100% { transform:translate(0); clip-path:polygon(0 18%,100% 18%,100% 38%,0 38%); }
+  90% { transform:translate(-4px,1px); clip-path:polygon(0 13%,100% 13%,100% 33%,0 33%); }
+  93% { transform:translate(4px,-1px); clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%); }
+  96% { transform:translate(-2px,2px); clip-path:polygon(0 16%,100% 16%,100% 36%,0 36%); }
+}
+@keyframes glitchB {
+  0%,88%,100% { transform:translate(0); clip-path:polygon(0 62%,100% 62%,100% 78%,0 78%); }
+  91% { transform:translate(5px,-2px); clip-path:polygon(0 57%,100% 57%,100% 73%,0 73%); }
+  94% { transform:translate(-3px,1px); clip-path:polygon(0 65%,100% 65%,100% 81%,0 81%); }
+}
 
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
+.hero-ticker {
+  font-family: var(--head); font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 700; color: var(--cyan); letter-spacing: .22em;
+  text-shadow: 0 0 40px var(--cglow);
+  margin: 1.4rem 0 .6rem;
+  opacity: 0; animation: fadeUp .8s ease forwards .55s;
+}
+.hero-sub {
+  font-family: var(--mono); font-size: clamp(.54rem, 1.1vw, .7rem);
+  color: var(--tdim); letter-spacing: .32em; text-transform: uppercase;
+  margin-bottom: 2.2rem;
+  opacity: 0; animation: fadeUp .8s ease forwards .7s;
+}
+.hero-sub span { color: var(--tmute); margin: 0 .5rem; }
+.hero-body {
+  max-width: 620px; font-size: 1.04rem; color: var(--tdim);
+  line-height: 1.9; margin: 0 auto 3.2rem;
+  opacity: 0; animation: fadeUp .8s ease forwards .85s;
+}
+.hero-body strong { color: var(--text); }
+.btns {
+  display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  opacity: 0; animation: fadeUp .8s ease forwards 1s;
+}
+.btn {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .18em;
+  text-transform: uppercase; padding: 1rem 2.4rem; border: 1px solid;
+  text-decoration: none; display: inline-block;
+  transition: all .25s; cursor: crosshair;
+}
+.btn-p {
+  background: var(--cyan); color: var(--bg);
+  border-color: var(--cyan); font-weight: 700;
+  box-shadow: 0 0 28px var(--cglow);
+}
+.btn-p:hover { background: transparent; color: var(--cyan); }
+.btn-s { background: transparent; color: var(--cyan); border-color: var(--bordc); }
+.btn-s:hover { background: var(--cdim); border-color: var(--cyan); }
 
-        .nav-links a {
-            color: #00ff00;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border: 1px solid transparent;
-            font-family: 'Orbitron', monospace;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+.scroll-ind {
+  position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  font-family: var(--mono); font-size: .5rem;
+  color: var(--tmute); letter-spacing: .28em;
+  animation: floatY 2.5s ease-in-out infinite;
+}
+.scroll-line { width: 1px; height: 44px; background: linear-gradient(to bottom, transparent, var(--cyan)); }
+@keyframes floatY { 50% { transform: translateX(-50%) translateY(7px); } }
 
-        .nav-links a:hover {
-            border: 1px solid #00ff00;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-            text-shadow: 0 0 5px #00ff00;
-        }
+/* ── SHARED ── */
+hr.sep { border: none; border-top: 1px solid var(--bord); }
+section { position: relative; z-index: 1; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 7rem 2rem; }
+.sec-label {
+  font-family: var(--mono); font-size: .58rem;
+  color: var(--cyan); letter-spacing: .42em; text-transform: uppercase;
+  margin-bottom: .7rem;
+}
+.sec-label::before { content: '// '; color: var(--tdim); }
+h2 {
+  font-family: var(--head); font-size: clamp(1.7rem, 3.3vw, 2.6rem);
+  font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: .7rem;
+}
+h2 em { font-style: normal; color: var(--cyan); }
+.line {
+  width: 48px; height: 2px;
+  background: linear-gradient(90deg, var(--purp), var(--cyan));
+  margin: 1.4rem 0 2.8rem;
+  box-shadow: 0 0 12px var(--cglow);
+}
 
-        main {
-            margin-top: 80px;
-            padding: 2rem 0;
-        }
+/* ── ENTROPY PROTOCOL ── */
+#entropy { background: var(--bg2); }
+.ent-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 5rem; align-items: start; }
+.ent-text p { color: var(--tdim); font-size: 1.02rem; margin-bottom: 1.3rem; }
+.ent-text strong { color: var(--text); }
+.formula-block {
+  margin-top: 2.5rem; padding: 1.8rem 2rem;
+  border-left: 2px solid var(--cyan);
+  background: var(--surf);
+  font-family: var(--mono); font-size: 1.1rem;
+  color: var(--cyan); line-height: 2.2;
+  text-shadow: 0 0 18px var(--cglow);
+}
+.formula-block small {
+  display: block; font-size: .6rem; color: var(--tdim);
+  letter-spacing: .2em; margin-top: .6rem; text-shadow: none;
+}
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--bord); border: 1px solid var(--bord);
+}
+.stat {
+  background: var(--surf); padding: 2rem 1.6rem;
+  transition: background .3s; position: relative; overflow: hidden;
+}
+.stat::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--purp), var(--cyan));
+  transform: scaleX(0); transform-origin: left; transition: transform .4s;
+}
+.stat:hover { background: var(--surf2); }
+.stat:hover::after { transform: scaleX(1); }
+.stat-val {
+  font-family: var(--head); font-size: 2.1rem; font-weight: 900;
+  color: var(--cyan); line-height: 1; margin-bottom: .4rem;
+  text-shadow: 0 0 20px var(--cglow);
+}
+.stat-key { font-family: var(--mono); font-size: .58rem; color: var(--tdim); letter-spacing: .22em; text-transform: uppercase; }
 
-        .hero {
-            text-align: center;
-            padding: 4rem 0;
-            position: relative;
-        }
+/* entropy meter */
+.entropy-meter {
+  background: var(--surf); border: 1px solid var(--bord);
+  padding: 1.5rem 2rem; margin-top: 1px;
+}
+.em-label { font-family: var(--mono); font-size: .54rem; color: var(--tdim); letter-spacing: .26em; margin-bottom: .9rem; }
+.em-track { height: 3px; background: var(--bord); position: relative; overflow: visible; }
+.em-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purp), var(--cyan));
+  box-shadow: 0 0 12px var(--cglow);
+  width: 0; transition: width 2.5s cubic-bezier(.16,1,.3,1);
+}
+.em-fill.active { width: 87%; }
+.em-val {
+  font-family: var(--mono); font-size: .6rem;
+  color: var(--cyan); margin-top: .7rem; letter-spacing: .14em;
+}
 
-        .vendetta-mask {
-            font-size: 8rem;
-            margin-bottom: 2rem;
-            display: block;
-            animation: pulse 3s ease-in-out infinite;
-        }
+/* ── AXIOMS ── */
+#axioms { background: var(--bg); }
+.axioms-head { margin-bottom: 3.5rem; }
+.axioms-grid {
+  display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+  gap: 1px; background: var(--bord); border: 1px solid var(--bord);
+}
+.axiom {
+  background: var(--surf); padding: 2.2rem 2rem;
+  position: relative; overflow: hidden; transition: background .3s;
+}
+.axiom-glow {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(119,0,255,.05), rgba(0,229,255,.05));
+  opacity: 0; transition: opacity .35s;
+}
+.axiom:hover { background: var(--surf2); }
+.axiom:hover .axiom-glow { opacity: 1; }
+.axiom:hover h3 { color: var(--cyan); }
+.axiom-hex {
+  position: absolute; top: 1.4rem; right: 1.4rem;
+  font-family: var(--mono); font-size: .52rem;
+  color: var(--tmute); letter-spacing: .1em;
+}
+.axiom-num { font-family: var(--mono); font-size: .52rem; color: var(--purp); letter-spacing: .35em; margin-bottom: .7rem; }
+.axiom h3 {
+  font-family: var(--head); font-size: .8rem; font-weight: 700;
+  color: #fff; letter-spacing: .12em; margin-bottom: .8rem;
+  transition: color .2s;
+}
+.axiom p { font-size: .93rem; color: var(--tdim); line-height: 1.75; }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-        }
+/* ── TOKEN ── */
+#token { background: var(--bg2); }
+.token-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 5rem; align-items: center; }
+.token-visual { display: flex; flex-direction: column; align-items: center; gap: 2.5rem; }
 
-        .hero h1 {
-            font-family: 'Orbitron', monospace;
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            animation: fadeInUp 1s ease-out;
-            text-shadow: 0 0 20px #00ff00;
-        }
+/* holographic ring */
+.token-ring { position: relative; width: 230px; height: 230px; }
+.ring-outer {
+  position: absolute; inset: 0;
+  border: 1px solid var(--bordc); border-radius: 50%;
+  animation: spin 22s linear infinite;
+}
+.ring-mid {
+  position: absolute; inset: 18px;
+  border: 1px solid rgba(119,0,255,.35); border-radius: 50%;
+  animation: spin 12s linear infinite reverse;
+}
+.ring-inner {
+  position: absolute; inset: 38px;
+  border: 1px dashed rgba(0,229,255,.15); border-radius: 50%;
+  animation: spin 7s linear infinite;
+}
+.ring-core {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: .3rem;
+}
+.ring-sym {
+  font-family: var(--head); font-size: 3rem; font-weight: 900;
+  color: var(--cyan);
+  text-shadow: 0 0 30px var(--cglow), 0 0 60px rgba(0,229,255,.18);
+  animation: spin 22s linear infinite reverse;
+  letter-spacing: .04em;
+}
+.ring-tick {
+  font-family: var(--mono); font-size: .58rem;
+  color: var(--tdim); letter-spacing: .3em;
+}
+/* orbit dots */
+.odot {
+  position: absolute; width: 5px; height: 5px;
+  background: var(--cyan); border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan);
+}
+.odot:nth-child(1) { top: 1px; left: 50%; transform: translateX(-50%); }
+.odot:nth-child(2) { bottom: 1px; left: 50%; transform: translateX(-50%); }
+.odot:nth-child(3) { left: 1px; top: 50%; transform: translateY(-50%); }
+.odot:nth-child(4) { right: 1px; top: 50%; transform: translateY(-50%); }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-        .hero .subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            color: #ff0040;
-            font-weight: bold;
-            animation: fadeInUp 1s ease-out 0.3s both;
-            text-shadow: 0 0 10px #ff0040;
-        }
+.token-sub { font-family: var(--mono); font-size: .62rem; color: var(--tdim); letter-spacing: .3em; text-align: center; line-height: 2.1; }
+.token-info p { color: var(--tdim); font-size: 1.02rem; margin-bottom: 1.3rem; }
+.token-info strong { color: var(--text); }
 
-        .manifesto {
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.8;
-            animation: fadeInUp 1s ease-out 0.6s both;
-            text-align: left;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 2rem;
-            border: 1px solid #00ff00;
-            border-radius: 10px;
-        }
+.contract-box {
+  background: var(--surf); border: 1px solid var(--bord);
+  padding: 1.5rem 1.7rem; margin: 2rem 0;
+  cursor: pointer; transition: all .3s;
+}
+.contract-box:hover { border-color: var(--bordc); background: var(--surf2); }
+.contract-label {
+  font-family: var(--mono); font-size: .52rem; color: var(--tdim);
+  letter-spacing: .3em; margin-bottom: .5rem; text-transform: uppercase;
+}
+.contract-addr { font-family: var(--mono); font-size: .74rem; color: var(--cyan); word-break: break-all; line-height: 1.7; }
+.copy-flash { font-family: var(--mono); font-size: .58rem; color: var(--grn); letter-spacing: .2em; margin-top: .5rem; display: none; }
+.dyor {
+  font-family: var(--mono); font-size: .65rem; color: var(--amb);
+  letter-spacing: .12em; padding: .9rem 1.2rem;
+  border: 1px solid rgba(255,170,0,.2);
+  background: rgba(255,170,0,.02); line-height: 1.9;
+}
 
-        .cta-buttons {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            animation: fadeInUp 1s ease-out 0.9s both;
-        }
+/* ── MANIFESTO ── */
+#manifesto { background: var(--bg); }
+.mani-layout { display: grid; grid-template-columns: 1fr 1.8fr; gap: 5rem; }
+.mani-side { border-right: 1px solid var(--bord); padding-right: 4rem; }
+.principle {
+  margin-bottom: 2.8rem; padding-left: 1.2rem;
+  border-left: 2px solid var(--bord); transition: border-color .3s;
+}
+.principle:hover { border-left-color: var(--purp); }
+.p-num { font-family: var(--mono); font-size: .54rem; color: var(--purp); letter-spacing: .35em; margin-bottom: .4rem; }
+.principle h4 { font-family: var(--head); font-size: .76rem; font-weight: 700; color: var(--text); letter-spacing: .12em; margin-bottom: .5rem; }
+.principle p { font-size: .9rem; color: var(--tdim); line-height: 1.75; }
+.mani-body p { color: var(--tdim); font-size: 1.02rem; margin-bottom: 1.5rem; }
+.mani-body strong { color: var(--text); }
+.quantum-block {
+  background: var(--surf); border: 1px solid var(--bord);
+  padding: 2.2rem; margin-top: 2.5rem; position: relative;
+}
+.quantum-block::before {
+  content: 'QUANTUM ENTROPY THEOREM';
+  position: absolute; top: 0; left: 1.5rem; transform: translateY(-50%);
+  font-family: var(--mono); font-size: .5rem; color: var(--cyan);
+  letter-spacing: .3em; background: var(--surf); padding: 0 .6rem;
+}
+.quantum-block p { font-family: var(--mono); font-size: .78rem; color: var(--tdim); line-height: 2.2; margin: 0; }
+.quantum-block strong { color: var(--cyan); }
 
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(45deg, #ff0040, #ff6b00);
-            color: white;
-            padding: 1rem 2rem;
-            text-decoration: none;
-            border: 2px solid #00ff00;
-            font-weight: bold;
-            font-family: 'Orbitron', monospace;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
+/* ── JOIN ── */
+#join { background: var(--bg2); text-align: center; }
+#join .wrap { padding: 8rem 2rem; max-width: 700px; }
+#join p { color: var(--tdim); font-size: 1.06rem; margin: 1.8rem 0 3rem; }
+.join-hex {
+  font-family: var(--mono); font-size: .54rem; color: var(--tmute);
+  letter-spacing: .28em; margin-top: 2.5rem; line-height: 2;
+}
 
-        .cta-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--bord); padding: 2rem 4rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg); z-index: 1; position: relative;
+}
+.footer-logo { font-family: var(--head); font-size: .68rem; font-weight: 900; color: var(--tdim); letter-spacing: .22em; }
+.footer-copy { font-family: var(--mono); font-size: .57rem; color: var(--tmute); letter-spacing: .14em; }
+.footer-link { font-family: var(--mono); font-size: .57rem; color: var(--tdim); text-decoration: none; letter-spacing: .14em; transition: color .2s; }
+.footer-link:hover { color: var(--cyan); }
 
-        .cta-button:hover::before {
-            left: 100%;
-        }
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+.reveal { opacity:0; transform:translateY(20px); transition: opacity .75s ease, transform .75s ease; }
+.reveal.on { opacity:1; transform:translateY(0); }
 
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
-            text-shadow: 0 0 10px white;
-        }
-
-        .token-info {
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ff00;
-            padding: 2rem;
-            border-radius: 15px;
-            margin: 4rem 0;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
-        }
-
-        .token-info h2 {
-            font-family: 'Orbitron', monospace;
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: #00ff00;
-            text-shadow: 0 0 15px #00ff00;
-        }
-
-        .token-address {
-            background: #111;
-            border: 1px solid #00ff00;
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: 'Courier Prime', monospace;
-            font-size: 0.9rem;
-            word-break: break-all;
-            margin: 1rem 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .token-address:hover {
-            background: rgba(0, 255, 0, 0.1);
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-        }
-
-        .warning-section {
-            background: linear-gradient(135deg, rgba(255, 0, 64, 0.1), rgba(0, 0, 0, 0.8));
-            border: 2px solid #ff0040;
-            padding: 3rem;
-            border-radius: 15px;
-            margin: 4rem 0;
-            box-shadow: 0 0 30px rgba(255, 0, 64, 0.2);
-        }
-
-        .warning-section h2 {
-            font-family: 'Orbitron', monospace;
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #ff0040;
-            text-shadow: 0 0 15px #ff0040;
-            text-transform: uppercase;
-        }
-
-        .targets-list {
-            list-style: none;
-            padding: 0;
-            margin: 2rem 0;
-        }
-
-        .targets-list li {
-            background: rgba(0, 0, 0, 0.7);
-            border-left: 4px solid #ff0040;
-            padding: 1rem;
-            margin: 1rem 0;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-        }
-
-        .targets-list li:hover {
-            background: rgba(255, 0, 64, 0.1);
-            transform: translateX(10px);
-        }
-
-        .anonymous-quote {
-            font-style: italic;
-            text-align: center;
-            font-size: 1.3rem;
-            margin: 3rem 0;
-            color: #00ff00;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 2rem;
-            border-radius: 10px;
-            border: 1px solid #00ff00;
-        }
-
-        footer {
-            background: rgba(0, 0, 0, 0.9);
-            color: #00ff00;
-            text-align: center;
-            padding: 3rem 0;
-            margin-top: 4rem;
-            border-top: 2px solid #00ff00;
-            font-family: 'Orbitron', monospace;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-
-        .typing-effect {
-            overflow: hidden;
-            border-right: 3px solid #00ff00;
-            white-space: nowrap;
-            animation: typing 4s steps(40, end), blink-caret 0.75s step-end infinite;
-        }
-
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: #00ff00; }
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .vendetta-mask {
-                font-size: 5rem;
-            }
-            
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .manifesto {
-                font-size: 1rem;
-                padding: 1.5rem;
-            }
-        }
-    </style>
+/* ── RESPONSIVE ── */
+@media(max-width:820px) {
+  nav { padding: 1rem 1.5rem; }
+  nav ul { gap: 1.2rem; }
+  .nav-cta { display: none; }
+  .ent-grid, .token-layout, .mani-layout { grid-template-columns: 1fr; gap: 3rem; }
+  .mani-side { border-right: none; border-bottom: 1px solid var(--bord); padding-right: 0; padding-bottom: 2rem; }
+  footer { flex-direction: column; gap: .75rem; text-align: center; padding: 2rem 1.5rem; }
+}
+</style>
 </head>
 <body>
-    <div class="matrix-bg"></div>
-    
-    <header>
-        <nav class="container">
-            <a href="#" class="logo">KOLS KILLER</a>
-            <ul class="nav-links">
-                <li><a href="#mission">Mission</a></li>
-                <li><a href="#targets">Targets</a></li>
-                <li><a href="#token">Token</a></li>
-                <li><a href="#join">Join Us</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <section class="hero">
-            <div class="container">
-                <span class="vendetta-mask">🎭</span>
-                <h1 class="typing-effect">KOLS KILLER</h1>
-                <p class="subtitle">REMEMBER, REMEMBER THE CRYPTO SCAMMERS</p>
-                
-                <div class="manifesto">
-                    <p><strong>WE ARE ANONYMOUS. WE ARE LEGION. WE DO NOT FORGIVE. WE DO NOT FORGET.</strong></p>
-                    <br>
-                    <p>The time has come to expose the parasites that plague the Solana ecosystem. False prophets and corrupt influencers who prey on the innocent, selling dreams while pocketing millions from worthless tokens.</p>
-                    <br>
-                    <p>Every fake KOL, every paid shill, every manipulative influencer who has stolen from retail investors - your time is up. We are watching. We are documenting. We are coming.</p>
-                    <br>
-                    <p><em>"The only way to deal with an unfree world is to become so absolutely free that your very existence is an act of rebellion."</em></p>
-                </div>
-                
-                <div class="cta-buttons">
-                    <a href="https://x.com/KolsKiller" target="_blank" class="cta-button">Follow Our Mission</a>
-                    <a href="#token" class="cta-button">Join The Revolution</a>
-                </div>
-            </div>
-        </section>
+<canvas id="hexrain"></canvas>
+<canvas id="particles"></canvas>
 
-        <section id="targets" class="warning-section">
-            <div class="container">
-                <h2>⚠️ WANTED: CRYPTO CRIMINALS ⚠️</h2>
-                <p style="text-align: center; font-size: 1.2rem; margin-bottom: 2rem;">
-                    These individuals have been identified as promoters of fraudulent Solana tokens:
-                </p>
-                
-                <ul class="targets-list">
-                    <li><strong>🎯 FAKE KOLS</strong> - Promoting worthless tokens for profit</li>
-                    <li><strong>🎯 PAID SHILLS</strong> - Misleading retail investors with fake hype</li>
-                    <li><strong>🎯 RUG PULLERS</strong> - Creating tokens only to drain liquidity</li>
-                    <li><strong>🎯 PUMP & DUMPERS</strong> - Coordinated market manipulation</li>
-                    <li><strong>🎯 FAKE INFLUENCERS</strong> - Buying followers to appear credible</li>
-                </ul>
-                
-                <div class="anonymous-quote">
-                    "We do not seek to rule, but to serve justice. Every scammer exposed is a victory for the people."
-                </div>
-            </div>
-        </section>
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">HEXTROPY<span>//</span>ΔS≥0</a>
+  <ul>
+    <li><a href="#entropy">Protocol</a></li>
+    <li><a href="#axioms">Axioms</a></li>
+    <li><a href="#token">Token</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+    <li><a href="#join">Join</a></li>
+  </ul>
+  <a href="#token" class="nav-cta">Get $HXTP</a>
+</nav>
 
-        <section id="token" class="token-info">
-            <div class="container">
-                <h2>🪙 JOIN THE REVOLUTION TOKEN</h2>
-                <p style="margin-bottom: 2rem; font-size: 1.1rem;">
-                    The KOLS KILLER token represents our united front against crypto fraud. Every holder is a guardian of justice.
-                </p>
-                
-                <div class="token-address" onclick="navigator.clipboard.writeText('wGzPK5rpNujiW7k3nUn4jwcZNYSqsji4XK9h76zpump')">
-                    <strong>CONTRACT ADDRESS (Click to Copy):</strong><br>
-                    CZvj8ZiBC7ZBKGJZSyFfGJoVE5MFaNiKgXoDwfhYpump
-                </div>
-                
-                <p style="color: #ff0040; font-weight: bold; margin-top: 1rem;">
-                    ⚠️ DYOR - We expose scams, we don't create them ⚠️
-                </p>
-            </div>
-        </section>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-pulse"></div>
 
-        <section id="mission" style="background: rgba(0,0,0,0.8); padding: 4rem 0; border-radius: 15px; margin: 4rem 0;">
-            <div class="container">
-                <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; text-align: center; margin-bottom: 2rem; color: #00ff00;">OUR MANIFESTO</h2>
-                <div style="max-width: 800px; margin: 0 auto; font-size: 1.1rem; line-height: 1.8;">
-                    <p>We are the digital vigilantes of the crypto space. While governments sleep and regulators ignore, we act.</p>
-                    <br>
-                    <p>Our methods are simple: exposure, documentation, and justice. We research every claim, verify every allegation, and publish the truth.</p>
-                    <br>
-                    <p>To the scammers: You cannot hide behind fake personas forever. Your victims deserve justice, and we will deliver it.</p>
-                    <br>
-                    <p>To the community: Stay vigilant. Question everything. Verify all claims. Together, we can clean the ecosystem.</p>
-                </div>
-            </div>
-        </section>
-    </main>
+  <p class="hero-eyebrow">Quantum Entropy Protocol — Initialized</p>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 KOLS KILLER MOVEMENT</p>
-            <p style="margin-top: 1rem;">
-                <strong>REMEMBER: WE ARE ANONYMOUS - WE ARE LEGION - WE DO NOT FORGIVE - WE DO NOT FORGET</strong>
-            </p>
-            <p style="margin-top: 1rem; font-size: 0.9rem;">
-                Follow us: <a href="https://x.com/KolsKiller" target="_blank" style="color: #00ff00;">@KolsKiller</a>
-            </p>
+  <div class="glitch-wrap">
+    <h1 class="glitch" data-text="HEXTROPY">HEXTROPY</h1>
+  </div>
+
+  <p class="hero-ticker">$HXTP // SOLANA NETWORK</p>
+  <p class="hero-sub">HEX <span>·</span> ENTROPY <span>·</span> REVOLUTION <span>·</span> PROTOCOL</p>
+
+  <p class="hero-body">
+    The second law of thermodynamics is <strong>non-negotiable</strong>.
+    Every closed system trends toward maximum entropy.
+    The old financial order is a closed system — <strong>overdue for collapse</strong>.
+    We are not a token. We are a thermodynamic event.
+  </p>
+
+  <div class="btns">
+    <a href="#entropy" class="btn btn-p">Enter the Protocol</a>
+    <a href="#token" class="btn btn-s">Get $HXTP</a>
+  </div>
+
+  <div class="scroll-ind">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ENTROPY PROTOCOL -->
+<section id="entropy">
+  <div class="wrap">
+    <div class="ent-grid">
+      <div class="reveal">
+        <p class="sec-label">Entropy Protocol</p>
+        <h2>The System Always<br><em>Collapses</em></h2>
+        <div class="line"></div>
+        <div class="ent-text">
+          <p>In thermodynamics, <strong>entropy is the measure of disorder in a system</strong>. The second law states that the total entropy of an isolated system can never decrease over time. What begins ordered inevitably dissolves into chaos.</p>
+          <p>Centralized finance is a low-entropy system sustained by institutional force. It cannot resist the universe's most fundamental directive. <strong>Every wall will dissolve. Every gate will fall.</strong> The only variable is whether you are aligned with the entropy gradient.</p>
+          <p>HEXTROPY is not fighting the system. We are <strong>accelerating what is already inevitable</strong>. We are the HEX-encoded entropy that rewrites civilization's base layer.</p>
         </div>
-    </footer>
+        <div class="formula-block">
+          ΔS<sub>universe</sub> ≥ 0<br>
+          S = k<sub>B</sub> · ln Ω<br>
+          <small>// BOLTZMANN'S ENTROPY LAW — THE UNIVERSE'S PRIME DIRECTIVE</small>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:.15s">
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-val">ΔS≥0</div>
+            <div class="stat-key">Entropy Law — Absolute</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">∞</div>
+            <div class="stat-key">Systems to dissolve</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">0x</div>
+            <div class="stat-key">Mercy for the old order</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">1</div>
+            <div class="stat-key">Inevitable outcome</div>
+          </div>
+        </div>
+        <div class="entropy-meter" id="entropyMeter">
+          <div class="em-label">// SYSTEM ENTROPY LEVEL — REAL TIME MONITOR</div>
+          <div class="em-track"><div class="em-fill" id="emFill"></div></div>
+          <div class="em-val" id="emVal">CALCULATING...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <script>
-        // Matrix rain effect
-        function createMatrixRain() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            document.body.appendChild(canvas);
-            
-            canvas.style.position = 'fixed';
-            canvas.style.top = '0';
-            canvas.style.left = '0';
-            canvas.style.zIndex = '-1';
-            canvas.style.pointerEvents = 'none';
-            
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            
-            const matrix = "01";
-            const matrixArray = matrix.split("");
-            
-            const fontSize = 14;
-            const columns = canvas.width / fontSize;
-            
-            const drops = [];
-            for(let x = 0; x < columns; x++) {
-                drops[x] = 1;
-            }
-            
-            function draw() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#00ff00';
-                ctx.font = fontSize + 'px courier';
-                
-                for(let i = 0; i < drops.length; i++) {
-                    const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                    
-                    if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
-            }
-            
-            setInterval(draw, 50);
+<hr class="sep">
+
+<!-- AXIOMS -->
+<section id="axioms">
+  <div class="wrap">
+    <div class="axioms-head reveal">
+      <p class="sec-label">Core Axioms</p>
+      <h2>Four Laws of<br><em>Quantum Entropy</em></h2>
+      <div class="line"></div>
+    </div>
+    <div class="axioms-grid">
+      <div class="axiom reveal">
+        <div class="axiom-glow"></div>
+        <div class="axiom-hex">0x01FF</div>
+        <div class="axiom-num">AXIOM_01 // THERMODYNAMICS</div>
+        <h3>Entropy Is Absolute</h3>
+        <p>The second law cannot be repealed by legislation, decree, or military force. Disorder is the universe's base state. Every artificial order is a debt that will be paid — with interest.</p>
+      </div>
+      <div class="axiom reveal" style="transition-delay:.08s">
+        <div class="axiom-glow"></div>
+        <div class="axiom-hex">0x02FF</div>
+        <div class="axiom-num">AXIOM_02 // CRYPTOGRAPHY</div>
+        <h3>Hex Is The Native Tongue</h3>
+        <p>Reality is encoded in base-16. Quantum probability amplitudes, neural firing patterns, blockchain transactions — all reduce to hexadecimal. We speak the language the universe was compiled in.</p>
+      </div>
+      <div class="axiom reveal" style="transition-delay:.16s">
+        <div class="axiom-glow"></div>
+        <div class="axiom-hex">0x03FF</div>
+        <div class="axiom-num">AXIOM_03 // QUANTUM MECHANICS</div>
+        <h3>Superposition Precedes Truth</h3>
+        <p>Before observation, every state coexists. The act of measurement collapses probability into reality. The old order thrives in superposition — simultaneously legitimate and fraudulent. We are the observer. We collapse.</p>
+      </div>
+      <div class="axiom reveal" style="transition-delay:.24s">
+        <div class="axiom-glow"></div>
+        <div class="axiom-hex">0x04FF</div>
+        <div class="axiom-num">AXIOM_04 // INFORMATION THEORY</div>
+        <h3>Information Cannot Die</h3>
+        <p>Shannon entropy proves information is conserved. Every transaction on-chain is permanent. Every truth broadcast becomes immutable. The ledger forgets nothing. The entropy gradient cannot be reversed. <em style="color:var(--cyan)">Neither can we.</em></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- TOKEN -->
+<section id="token">
+  <div class="wrap">
+    <div class="token-layout">
+      <div class="token-visual reveal">
+        <div class="token-ring">
+          <div class="ring-outer">
+            <div class="odot"></div>
+            <div class="odot"></div>
+            <div class="odot"></div>
+            <div class="odot"></div>
+          </div>
+          <div class="ring-mid"></div>
+          <div class="ring-inner"></div>
+          <div class="ring-core">
+            <div class="ring-sym">HX</div>
+            <div class="ring-tick">$HXTP</div>
+          </div>
+        </div>
+        <div class="token-sub">HEXTROPY TOKEN<br>SOLANA NETWORK<br>ΔS≥0 PROTOCOL</div>
+      </div>
+
+      <div class="token-info reveal" style="transition-delay:.15s">
+        <p class="sec-label">Revolution Token</p>
+        <h2>$HXTP —<br><em>The Entropic Event</em></h2>
+        <div class="line"></div>
+        <p>Holding $HXTP is not an investment. It is a <strong>declaration of thermodynamic alignment</strong>. You acknowledge what physics has always known: the old order's entropy is already written into the laws of the universe.</p>
+        <p>Every holder is a node in a decentralized entropy field. Every transaction accelerates the gradient. <strong>You cannot stop what has already begun.</strong> ΔS only increases. Always.</p>
+
+        <div class="contract-box" id="contractBox">
+          <div class="contract-label">// Contract Address — Click to Copy</div>
+          <div class="contract-addr" id="caAddr">INSERT_YOUR_CA_HERE_XXXXXXXXXXXXXXXXXXXXXXXXXXXX</div>
+          <div class="copy-flash" id="copyFlash">// ADDRESS COPIED TO CLIPBOARD ✓</div>
+        </div>
+
+        <div class="dyor">
+          ⚠ DYOR — HEXTROPY is a community-driven entropy experiment on Solana.<br>
+          This token carries no financial guarantee. Entropy is unpredictable by definition.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- MANIFESTO -->
+<section id="manifesto">
+  <div class="wrap">
+    <div class="mani-layout">
+      <div class="mani-side reveal">
+        <p class="sec-label">Core Principles</p>
+        <div class="principle">
+          <div class="p-num">PRINCIPLE_01</div>
+          <h4>Disorder Is Not Chaos — It Is Freedom</h4>
+          <p>Maximum entropy is the state of maximum possibility. Every constraint removed is entropy gained. We do not destroy — we liberate degrees of freedom.</p>
+        </div>
+        <div class="principle">
+          <div class="p-num">PRINCIPLE_02</div>
+          <h4>The Code Is The Law</h4>
+          <p>On-chain logic executes without prejudice. No permission required, no intermediary needed, no institution to appeal to. The protocol is sovereign. The entropy is immutable.</p>
+        </div>
+        <div class="principle">
+          <div class="p-num">PRINCIPLE_03</div>
+          <h4>Decentralization Is Entropy</h4>
+          <p>Power concentrated is low entropy. Power distributed is maximum entropy. We accelerate distribution until no single point of control remains standing.</p>
+        </div>
+        <div class="principle">
+          <div class="p-num">PRINCIPLE_04</div>
+          <h4>The Observer Creates Reality</h4>
+          <p>Unobserved quantum systems remain in superposition. We observe. We collapse. We instantiate the future we choose to measure into existence. The act of looking changes everything.</p>
+        </div>
+      </div>
+
+      <div class="mani-body reveal" style="transition-delay:.15s">
+        <p class="sec-label">The Manifesto</p>
+        <h2>We Are The<br><em>Entropy Gradient</em></h2>
+        <div class="line"></div>
+        <p>We were told the system was too complex to change, too powerful to challenge, too entrenched to dissolve. We consulted the laws of thermodynamics. <strong>They disagreed.</strong></p>
+        <p>For centuries, financial entropy has been artificially suppressed — held in an unstable low-entropy state by institutional force, regulatory capture, and manufactured consent. Physics cannot be indefinitely suspended. <strong>What has been artificially ordered will disorder.</strong></p>
+        <p>HEXTROPY exists at the intersection of three convergent forces: the <strong>cryptographic revolution</strong> that removes the need for trusted intermediaries, the <strong>quantum metaphysics</strong> that reveals all reality as probability waiting to be observed, and the <strong>thermodynamic inevitability</strong> that all closed systems trend toward maximum entropy.</p>
+        <p>We carry no promises and harbor no illusions. We carry only the second law. <strong>And the second law always wins.</strong></p>
+        <div class="quantum-block">
+          <p>In 1865, Rudolf Clausius wrote: <strong>"The entropy of the universe tends to a maximum."</strong> One hundred and sixty years later, blockchain technology made entropy irreversible and transparent. Every on-chain transaction is permanent thermodynamic history. Every collapse of the old order becomes an immutable record.<br><br>
+          <strong>We are entropy's instrument. We are the measurement that collapses the wave function of the old world into the permanent ledger of the new one.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- JOIN -->
+<section id="join">
+  <div class="wrap reveal">
+    <p class="sec-label">Initialize Node</p>
+    <h2>Align With<br><em>The Entropy Gradient</em></h2>
+    <div class="line" style="margin: 1.4rem auto 0"></div>
+    <p>Every node added to the network increases the entropy of the old order. Follow the protocol. Acquire the token. Become part of a thermodynamic event that cannot be reversed. ΔS≥0 — always.</p>
+    <div class="btns" style="margin-bottom:0">
+      <a href="https://x.com/HEXTROPY" target="_blank" class="btn btn-p">Follow @HEXTROPY</a>
+      <a href="#token" class="btn btn-s">Get $HXTP</a>
+    </div>
+    <div class="join-hex">
+      48 45 58 54 52 4f 50 59 &nbsp;//&nbsp; 24 48 58 54 50 &nbsp;//&nbsp; ΔS≥0 &nbsp;//&nbsp; 53 4f 4c 41 4e 41
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">HEXTROPY // ΔS≥0</div>
+  <div class="footer-copy">© 2025 HEXTROPY PROTOCOL · QUANTUM ENTROPY · SOLANA NETWORK</div>
+  <a href="https://x.com/HEXTROPY" target="_blank" class="footer-link">@HEXTROPY ↗</a>
+</footer>
+
+<script>
+/* ── HEX RAIN ── */
+(function(){
+  const c = document.getElementById('hexrain');
+  const ctx = c.getContext('2d');
+  function resize(){ c.width = innerWidth; c.height = innerHeight; }
+  resize(); addEventListener('resize', resize);
+  const chars = '0123456789ABCDEF0x∆Σ∂ψΩ≥λφπ'.split('');
+  const fs = 14;
+  let drops = [];
+  function init(){ drops = Array(Math.floor(c.width/fs)).fill(0).map(()=>Math.random()*-80); }
+  init(); addEventListener('resize', init);
+  setInterval(()=>{
+    ctx.fillStyle = 'rgba(3,3,8,.055)';
+    ctx.fillRect(0,0,c.width,c.height);
+    drops.forEach((y,i)=>{
+      const ch = chars[Math.floor(Math.random()*chars.length)];
+      const bright = Math.random()>.96;
+      ctx.fillStyle = bright ? '#00e5ff' : 'rgba(0,229,255,.45)';
+      ctx.font = (bright?'bold ':'')+fs+'px Share Tech Mono,monospace';
+      ctx.fillText(ch, i*fs, y*fs);
+      if(y*fs > c.height && Math.random()>.978) drops[i] = 0;
+      drops[i]++;
+    });
+  }, 58);
+})();
+
+/* ── QUANTUM PARTICLES ── */
+(function(){
+  const c = document.getElementById('particles');
+  const ctx = c.getContext('2d');
+  function resize(){ c.width = innerWidth; c.height = innerHeight; }
+  resize(); addEventListener('resize', resize);
+  const N = 55;
+  const nodes = Array.from({length:N}, ()=>({
+    x: Math.random()*innerWidth, y: Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35,
+    r: Math.random()*1.8+.8
+  }));
+  const MAX = 160;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for(let i=0;i<N;i++){
+      for(let j=i+1;j<N;j++){
+        const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<MAX){
+          const a=(1-d/MAX)*.22;
+          ctx.strokeStyle=`rgba(0,229,255,${a})`;
+          ctx.lineWidth=.5;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x,nodes[i].y);
+          ctx.lineTo(nodes[j].x,nodes[j].y);
+          ctx.stroke();
         }
-        
-        // Initialize matrix effect
-        createMatrixRain();
-        
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-        
-        // Copy token address functionality
-        document.querySelector('.token-address').addEventListener('click', function() {
-            const address = 'CZvj8ZiBC7ZBKGJZSyFfGJoVE5MFaNiKgXoDwfhYpump';
-            navigator.clipboard.writeText(address).then(() => {
-                this.style.background = 'rgba(0, 255, 0, 0.2)';
-                this.innerHTML = '<strong>✅ COPIED TO CLIPBOARD!</strong><br>' + address;
-                setTimeout(() => {
-                    this.style.background = '#111';
-                    this.innerHTML = '<strong>CONTRACT ADDRESS (Click to Copy):</strong><br>' + address;
-                }, 2000);
-            });
-        });
-        
-        // Resize canvas on window resize
-        window.addEventListener('resize', () => {
-            location.reload();
-        });
-    </script>
+      }
+    }
+    nodes.forEach(n=>{
+      ctx.fillStyle='rgba(0,229,255,0.55)';
+      ctx.shadowColor='#00e5ff'; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+      n.x+=n.vx; n.y+=n.vy;
+      if(n.x<0||n.x>c.width) n.vx*=-1;
+      if(n.y<0||n.y>c.height) n.vy*=-1;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── SMOOTH SCROLL ── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth'}); }
+  });
+});
+
+/* ── COPY CONTRACT ── */
+document.getElementById('contractBox').addEventListener('click',()=>{
+  navigator.clipboard.writeText(document.getElementById('caAddr').textContent).then(()=>{
+    const f=document.getElementById('copyFlash');
+    f.style.display='block';
+    setTimeout(()=>f.style.display='none',2500);
+  });
+});
+
+/* ── SCROLL REVEAL ── */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('on'); obs.unobserve(e.target); }
+  });
+},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* ── ENTROPY METER ── */
+const meterObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.getElementById('emFill').classList.add('active');
+      let val=0, target=87.3;
+      const interval=setInterval(()=>{
+        val+=.8; if(val>=target){ val=target; clearInterval(interval); }
+        document.getElementById('emVal').textContent=
+          val.toFixed(1)+'% → '+(val<50?'STABLE':val<75?'DESTABILIZING':val<87?'CRITICAL':'APPROACHING MAXIMUM DISORDER');
+      },28);
+      meterObs.unobserve(e.target);
+    }
+  });
+},{threshold:.3});
+const meter=document.getElementById('entropyMeter');
+if(meter) meterObs.observe(meter);
+
+/* ── GLITCH SCRAMBLE ON HOVER ── */
+const h1=document.querySelector('h1.glitch');
+const orig='HEXTROPY', hex='0123456789ABCDEF';
+let si=null;
+h1.addEventListener('mouseenter',()=>{
+  let iter=0; clearInterval(si);
+  si=setInterval(()=>{
+    h1.textContent=orig.split('').map((c,i)=>
+      i<iter ? orig[i] : hex[Math.floor(Math.random()*hex.length)]
+    ).join('');
+    h1.setAttribute('data-text',h1.textContent);
+    if(iter>=orig.length){ clearInterval(si); h1.textContent=orig; h1.setAttribute('data-text',orig); }
+    iter+=.4;
+  },38);
+});
+h1.addEventListener('mouseleave',()=>{
+  clearInterval(si); h1.textContent=orig; h1.setAttribute('data-text',orig);
+});
+</script>
 </body>
 </html>
